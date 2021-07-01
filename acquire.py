@@ -117,7 +117,7 @@ def sales_df():
 
 ############################# MERGE DATA FUNCTION #########################
 
-def merge_data():
+def get_store_data():
     '''
     This function merges items, stores, and sales dataframes
     and returns the completed merged df
