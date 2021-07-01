@@ -5,6 +5,7 @@ env.py
 __pycache__ 
 
 *.json
+*.csv
 *.xlsx
 
 opsd_germany_daily.csv
