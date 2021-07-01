@@ -1,6 +1,7 @@
 import pandas as pd 
 import requests 
 import os
+import numpy as np
 
 ##################### GERMANY ENERGY FUNCTION #####################
 
@@ -27,6 +28,7 @@ def items_df():
     This function pulls in items data from the url provided
     and returns all pages in items as a Pandas DataFrame
     '''
+
     #create an empty items list
     items_list = []
     #grab data from the url
@@ -48,7 +50,7 @@ def items_df():
 
     #create Pandas df and assign it to variable 'items'  
     items = pd.DataFrame.from_dict(items_list)
-    
+
     return items
 
 
@@ -80,7 +82,7 @@ def stores_df():
     
     #create Pandas df and assign it to variable 'stores'  
     stores = pd.DataFrame.from_dict(stores_list)
-    
+
     return stores
 
 
@@ -91,6 +93,7 @@ def sales_df():
     This function pulls in sales data from the url provided
     and returns all pages in sales as a Pandas DataFrame
     '''
+
     #create an empty sales list
     sales_list = []
     #grab data from the url
@@ -111,99 +114,60 @@ def sales_df():
         sales_list += page_sales
 
     #create Pandas df and assign it to variable 'sales'
-    sales = pd.DataFrame.from_dict(sales_list)
-        
-    return sales
+    sales_df = pd.DataFrame.from_dict(sales_list)
 
-#################################################################
+    #create a csv from that data
+    sales_df.to_csv('sales.csv')
 
-######################### Helper function used in create big_df ########################################
+    return sales_df
 
-def get_df(name):
-    """
-    This function takes in the string
-    'items', 'stores', or 'sales' and
-    returns a df containing all pages and
-    creates a .csv file for future use.
-    """
-    base_url = 'https://python.zach.lol'
-    api_url = base_url + '/api/v1/'
-    response = requests.get(api_url + name)
-    data = response.json()
+############################ Store CSV Function ##############################
+
+def sales_df_file():
+    if os.path.isfile('sales.csv'):
+        df = pd.read_csv('sales.csv', index_col=0)
     
-    # create list from 1st page
-    my_list = data['payload'][name]
+    else:
+        df = sales_df()
+        df.to_csv('sales.csv')
     
-    # loop through the pages and add to list
-    while data['payload']['next_page'] != None:
-        response = requests.get(base_url + data['payload']['next_page'])
-        data = response.json()
-        my_list.extend(data['payload'][name])
-    
-    # Create DataFrame from list
-    df = pd.DataFrame(my_list)
-    
-    # Write DataFrame to csv file for future use
-    df.to_csv(name + '.csv')
     return df
+
+############################# Data to CSV ####################################
+
+def items_csv():
+    '''
+    This function stores the grocery items locally as a .csv
+    '''
+    items = items_df()
+    return items.to_csv('items.csv')
+
+def stores_csv():
+    '''
+    This function stores the grocery stores locally as a .csv
+    '''
+    stores = stores_df()
+    return stores.to_csv('stores.csv')
+
 
 ############################# MERGE DATA FUNCTION #########################
 
-def merged_data():
+def all_store_data():
     '''
-    This function merges items, stores, and sales dataframes
+    This function uses a csv file of merged items, stores, and sales dataframes if one exists
+    if one does not exist, it is created
     and returns the completed merged df
     '''
-    #identify the variables (from previous functions)
-    items = items_df()
-    stores = stores_df()
-    sales = sales_df()
-
-    #rename column to be merged on
-    sales = sales.rename(columns={'item':'item_id'})
-    #merge sales and items on 'item_id'
-    merged_df = pd.merge(sales, items, on="item_id")
-
-    #rename column to be merged on
-    stores = stores.rename(columns={'store_id':'store'})
-    #merge stores to already merged df on store column
-    complete_df = pd.merge(merged_df, stores, on="store")
-
-    return completed_df
-
-############################# STORE DATA FUNCTION #########################
-
-def get_store_data():
-    """
-    This function checks for csv files
-    for items, sales, stores, and big_df 
-    if there are none, it creates them.
-    It returns one big_df of merged dfs.
-    """
-    # check for csv files or create them
-    if os.path.isfile('items.csv'):
-        items_df = pd.read_csv('items.csv', index_col=0)
+    if os.path.isfile('allstoredata.csv'):
+        df = pd.read_csv('allstoredata.csv', index_col=0)
+    
     else:
-        items_df = get_df('items')
-        
-    if os.path.isfile('stores.csv'):
-        stores_df = pd.read_csv('stores.csv', index_col=0)
-    else:
-        stores_df = get_df('stores')
-        
-    if os.path.isfile('sales.csv'):
-        sales_df = pd.read_csv('sales.csv', index_col=0)
-    else:
-        sales_df = get_df('sales')
-        
-    if os.path.isfile('big_df.csv'):
-        df = pd.read_csv('big_df.csv', index_col=0)
-        return df
-    else:
-        # merge all of the DataFrames into one
-        df = pd.merge(sales_df, stores_df, left_on='store', right_on='store_id').drop(columns={'store'})
-        df = pd.merge(df, items_df, left_on='item', right_on='item_id').drop(columns={'item'})
+        items_df = pd.read_csv('items.csv')
+        stores_df = pd.read_csv('stores.csv')
+        sales_df = pd.read_csv('sales.csv')
+        sales_stores_df = pd.merge(sales_df, stores_df, left_on='store', right_on='store_id', how='left')
+        sales_stores_items_df = pd.merge(sales_stores_df, items_df, left_on='item', right_on='item_id', how='left')
 
-        # write merged DateTime df with all data to directory for future use
-        df.to_csv('big_df.csv')
-        return df
+        sales_stores_items_df.to_csv('allstoredata.csv')
+
+        return sales_stores_items_df
