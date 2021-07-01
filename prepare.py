@@ -102,7 +102,7 @@ def prep_store():
     and returns that as a new pandas dataframe
     '''
     if os.path.isfile('prep_store.csv'):
-        df = pd.read_csv('pre_store.csv', index_col=0)
+        df = pd.read_csv('prep_store.csv', index_col=0)
 
         #assign variable df to acquire function
         df= acquire.all_store_data()
@@ -119,7 +119,7 @@ def prep_store():
         #create new colum for sale total
         df['sales_total'] = df.sale_amount * df.item_price
 
-     else:
+    else:
         df = prep_store()
         df.to_csv('prep_store.csv')
 
@@ -207,7 +207,7 @@ def prep_germany():
     and returns that as a new pandas dataframe
     '''
     if os.path.isfile('prep_germany.csv'):
-        df = pd.read_csv('pre_germany.csv', index_col=0)
+        df = pd.read_csv('prep_germany.csv', index_col=0)
     
     else:
         #assign variable df to acquire function
