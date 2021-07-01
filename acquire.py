@@ -21,7 +21,9 @@ def get_germany_data():
 
     return df
 
-############################# ITEMS FUNCTION #########################
+#######################################################################################
+    ##ACQUIRE FUNCTIONS
+############################# ITEMS ACQUIRE FUNCTION #########################
 
 def items_df():
     '''
@@ -54,7 +56,7 @@ def items_df():
     return items
 
 
-############################# STORES FUNCTION #########################
+############################# STORES ACQUIRE FUNCTION #########################
 
 def stores_df():
     '''
@@ -86,7 +88,7 @@ def stores_df():
     return stores
 
 
-############################# SALES FUNCTION #########################
+############################# SALES ACQUIRE FUNCTION #########################
 
 def sales_df():
     '''
@@ -121,9 +123,11 @@ def sales_df():
 
     return sales_df
 
-############################ Store CSV Function ##############################
+#######################################################################################
+## CSV FUNCTIONS
+############################ STORE CSV  ##############################
 
-def sales_df_file():
+def sales_csv():
     if os.path.isfile('sales.csv'):
         df = pd.read_csv('sales.csv', index_col=0)
     
@@ -133,7 +137,7 @@ def sales_df_file():
     
     return df
 
-############################# Data to CSV ####################################
+############################# ITEMS CSV ####################################
 
 def items_csv():
     '''
@@ -141,6 +145,9 @@ def items_csv():
     '''
     items = items_df()
     return items.to_csv('items.csv')
+
+############################# STORES CSV ####################################
+
 
 def stores_csv():
     '''
@@ -150,11 +157,30 @@ def stores_csv():
     return stores.to_csv('stores.csv')
 
 
+#######################################################################################
+##MERGE FUNCTIONS
+############################# NEW Groceries FUNCTION #########################
+
+def new_data():
+    '''
+    This function takes in 3 seperate csv files
+    and merges them together
+    then returns a merged pandas dataframe with that data
+    '''
+    items_df = pd.read_csv('items.csv')
+    stores_df = pd.read_csv('stores.csv')
+    sales_df = pd.read_csv('sales.csv')
+    sales_stores_df = pd.merge(sales_df, stores_df, left_on='store', right_on='store_id', how='left')
+    sales_stores_items_df = pd.merge(sales_stores_df, items_df, left_on='item', right_on='item_id', how='left')
+    sales_stores_items_df = sales_stores_items_df.drop(columns=['Unnamed: 0_x', 'Unnamed: 0_y', 'Unnamed: 0'])
+    
+    return sales_stores_items_df
+
 ############################# MERGE DATA FUNCTION #########################
 
 def all_store_data():
     '''
-    This function uses a csv file of merged items, stores, and sales dataframes if one exists
+    This function uses a csv file of merged store data
     if one does not exist, it is created
     and returns the completed merged df
     '''
@@ -162,12 +188,9 @@ def all_store_data():
         df = pd.read_csv('allstoredata.csv', index_col=0)
     
     else:
-        items_df = pd.read_csv('items.csv')
-        stores_df = pd.read_csv('stores.csv')
-        sales_df = pd.read_csv('sales.csv')
-        sales_stores_df = pd.merge(sales_df, stores_df, left_on='store', right_on='store_id', how='left')
-        sales_stores_items_df = pd.merge(sales_stores_df, items_df, left_on='item', right_on='item_id', how='left')
+        df = new_data()
+        df.to_csv('allstoredata.csv')
 
-        sales_stores_items_df.to_csv('allstoredata.csv')
+    return df
 
-        return sales_stores_items_df
+
