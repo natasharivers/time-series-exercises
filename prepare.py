@@ -59,7 +59,7 @@ def create_month():
     df= acquire.all_store_data()
 
     #create new colum for month
-    df['month'] = df.index.month
+    df['month'] = df.index.month_name()
 
     return df
 
@@ -113,7 +113,7 @@ def prep_store():
         df = df.set_index('sale_date').sort_index()
 
         #create new colum for month
-        df['month'] = df.index.month
+        df['month'] = df.index.month_name()
         #create new colum for weekday
         df['day_of_week'] = df.index.day_name()
         #create new colum for sale total
@@ -168,7 +168,7 @@ def germany_month():
     df = acquire.get_germany_data()
 
     #create new colum for month
-    df['month'] = df.index.month
+    df['month'] = df.index.month_name()
 
     return df
 
@@ -219,7 +219,7 @@ def prep_germany():
         df = df.set_index('Date').sort_index()
 
         #create new colum for month
-        df['month'] = df.index.month
+        df['month'] = df.index.month_name()
         #create new colum for weekday
         df['year'] = df.index.year
 
