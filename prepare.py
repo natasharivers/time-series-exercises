@@ -121,6 +121,8 @@ def prep_store():
         df['day_of_week'] = df.index.day_name()
         #create new colum for sale total
         df['sales_total'] = df.sale_amount * df.item_price
+        #rename column
+        df = df.rename(columns={"sale_amount": "items_sold"})
 
     else:
         df = prep_store()
