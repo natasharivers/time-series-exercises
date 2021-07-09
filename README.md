@@ -11,4 +11,5 @@
     - exploratory analysis
     - modeling
     
-
+- Within this repo you will also find a time series mini-project
+    - This mini-project is about climate change in Madrid, Spain from 1740s-2013   
